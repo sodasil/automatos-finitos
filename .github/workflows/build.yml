@@ -1,0 +1,88 @@
+name: Gerar executáveis
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar PyInstaller
+        run: python -m pip install pyinstaller
+
+      - name: Gerar executável
+        run: python -m PyInstaller --onefile --windowed --name Reconhecedor main.py
+
+      - name: Disponibilizar executável
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reconhecedor-Windows
+          path: dist/Reconhecedor.exe
+
+
+  linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar Tkinter
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-tk
+
+      - name: Instalar PyInstaller
+        run: python -m pip install pyinstaller
+
+      - name: Gerar executável
+        run: python -m PyInstaller --onefile --windowed --name Reconhecedor main.py
+
+      - name: Disponibilizar executável
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reconhecedor-Linux
+          path: dist/Reconhecedor
+
+
+  macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Baixar código
+        uses: actions/checkout@v4
+
+      - name: Instalar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar PyInstaller
+        run: python -m pip install pyinstaller
+
+      - name: Gerar aplicativo
+        run: python -m PyInstaller --windowed --name Reconhecedor main.py
+
+      - name: Disponibilizar aplicativo
+        uses: actions/upload-artifact@v4
+        with:
+          name: Reconhecedor-macOS
+          path: dist/Reconhecedor.app
