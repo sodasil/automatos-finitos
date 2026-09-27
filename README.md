@@ -1,9 +1,16 @@
 # Implementação de Autômatos Finitos
 
-Compilação:
+### Como executar:
+
+* Compilação:
     
-    g++ main.cpp -o main
+        g++ main.cpp -o main
 
-Execução:
+*   Execução:
 
-    ./main
+        ./main
+
+### Diagrama de transição que representa matriz *tabela* e vetor *EF*:
+
+![AFDM](./docs/diagrama.png)
+*Construído em [Flap.js](https://flapjs.github.io/FLAPJS-WebApp/)
