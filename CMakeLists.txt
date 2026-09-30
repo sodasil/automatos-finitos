@@ -4,7 +4,6 @@ project(Reconhecedor LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
 set(CMAKE_BUILD_TYPE Release)
 
 find_package(FLTK REQUIRED)
@@ -18,9 +17,18 @@ target_link_libraries(Reconhecedor
     fltk
 )
 
+if(WIN32)
+    target_link_libraries(Reconhecedor
+        PRIVATE
+        ws2_32
+        comctl32
+        ole32
+        uuid
+    )
+endif()
+
 if(MINGW)
     target_link_options(Reconhecedor PRIVATE
-        -static
         -static-libgcc
         -static-libstdc++
     )
