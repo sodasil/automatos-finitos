@@ -7,7 +7,6 @@ int main()
 {
     char simbolo;
     int estado;
-
     int tabela[12][4] =
     {
         //         a   b   c   d
@@ -42,8 +41,7 @@ int main()
     };
 
     string saida;
-
-    bool primeiroValido = false;
+    bool iniciouAlfabeto = false;
     bool invalida = false;
 
     estado = 0;
@@ -60,7 +58,7 @@ int main()
         {
             if (!saida.empty())
             {
-                if (!primeiroValido)
+                if (!iniciouAlfabeto)
                 {
                     cout << "ERRO: símbolo(s) inválido(s): "
                          << saida << endl;
@@ -70,22 +68,25 @@ int main()
                     cout << "ERRO: sentença inválida: "
                          << saida << endl;
                 }
-                else if (EF[estado] == 1)
-                {
-                    cout << "sentença válida: "
-                         << saida << endl;
-                }
                 else
                 {
-                    cout << "ERRO: sentença inválida: "
-                         << saida << endl;
+                    if (EF[estado] == 1)
+                    {
+                        cout << "sentença válida: "
+                             << saida << endl;
+                    }
+                    else
+                    {
+                        cout << "ERRO: sentença inválida: "
+                             << saida << endl;
+                    }
                 }
 
                 saida.clear();
             }
 
             estado = 0;
-            primeiroValido = false;
+            iniciouAlfabeto = false;
             invalida = false;
         }
 
@@ -96,7 +97,7 @@ int main()
         {
             if (!saida.empty())
             {
-                if (!primeiroValido)
+                if (!iniciouAlfabeto)
                 {
                     cout << "ERRO: símbolo(s) inválido(s): "
                          << saida << endl;
@@ -106,22 +107,25 @@ int main()
                     cout << "ERRO: sentença inválida: "
                          << saida << endl;
                 }
-                else if (EF[estado] == 1)
-                {
-                    cout << "sentença válida: "
-                         << saida << endl;
-                }
                 else
                 {
-                    cout << "ERRO: sentença inválida: "
-                         << saida << endl;
+                    if (EF[estado] == 1)
+                    {
+                        cout << "sentença válida: "
+                             << saida << endl;
+                    }
+                    else
+                    {
+                        cout << "ERRO: sentença inválida: "
+                             << saida << endl;
+                    }
                 }
 
                 saida.clear();
             }
 
             estado = 0;
-            primeiroValido = false;
+            iniciouAlfabeto = false;
             invalida = false;
 
             cout << "operador aritmético: "
@@ -133,9 +137,10 @@ int main()
                  simbolo == 'c' ||
                  simbolo == 'd')
         {
+
             if (saida.empty())
             {
-                primeiroValido = true;
+                iniciouAlfabeto = true;
             }
 
             if (!invalida)
@@ -165,8 +170,9 @@ int main()
         {
             if (saida.empty())
             {
-                primeiroValido = false;
+                iniciouAlfabeto = false;
             }
+
             else
             {
                 invalida = true;
@@ -180,7 +186,7 @@ int main()
 
     if (!saida.empty())
     {
-        if (!primeiroValido)
+        if (!iniciouAlfabeto)
         {
             cout << "ERRO: símbolo(s) inválido(s): "
                  << saida << endl;
@@ -190,15 +196,19 @@ int main()
             cout << "ERRO: sentença inválida: "
                  << saida << endl;
         }
-        else if (EF[estado] == 1)
-        {
-            cout << "sentença válida: "
-                 << saida << endl;
-        }
         else
         {
-            cout << "ERRO: sentença inválida: "
-                 << saida << endl;
+
+            if (EF[estado] == 1)
+            {
+                cout << "sentença válida: "
+                     << saida << endl;
+            }
+            else
+            {
+                cout << "ERRO: sentença inválida: "
+                     << saida << endl;
+            }
         }
     }
 
