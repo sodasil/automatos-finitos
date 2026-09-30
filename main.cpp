@@ -89,27 +89,24 @@ void processarSentenca(
 
 string reconhecer(const string& entrada)
 {
-    int estado = 0;
-
+    char simbolo;
+    int estado;
     string saida;
     string resultado;
-
     bool iniciouAlfabeto = false;
     bool invalida = false;
+    size_t posicao = 0;
+    estado = 0;
 
-    for (size_t i = 0; i < entrada.size(); i++)
+    if (posicao < entrada.size())
+        simbolo = entrada[posicao++];
+    else
+        simbolo = '$';
+        
+    while (simbolo != '$')
     {
-        char simbolo = entrada[i];
-
-        if (simbolo == '$')
-            break;
-
-        if (simbolo == ' '  ||
-            simbolo == '\n' ||
-            simbolo == '\t' ||
-            simbolo == '\r' ||
-            simbolo == '\v' ||
-            simbolo == '\f')
+        if (simbolo == ' ' || simbolo == '\n' || simbolo == '\t' ||
+            simbolo == '\r' || simbolo == '\v' || simbolo == '\f')
         {
             processarSentenca(
                 saida,
@@ -118,18 +115,14 @@ string reconhecer(const string& entrada)
                 invalida,
                 resultado
             );
-
             saida.clear();
-
             estado = 0;
             iniciouAlfabeto = false;
             invalida = false;
         }
 
-        else if (simbolo == '+' ||
-                 simbolo == '-' ||
-                 simbolo == '*' ||
-                 simbolo == '/')
+        else if (simbolo == '+' || simbolo == '-' ||
+                 simbolo == '*' || simbolo == '/')
         {
             processarSentenca(
                 saida,
@@ -138,28 +131,20 @@ string reconhecer(const string& entrada)
                 invalida,
                 resultado
             );
-
             saida.clear();
-
             estado = 0;
             iniciouAlfabeto = false;
             invalida = false;
-
             resultado += "operador aritmético: ";
             resultado += simbolo;
             resultado += "\n";
         }
 
-        else if (simbolo == 'a' ||
-                 simbolo == 'b' ||
-                 simbolo == 'c' ||
-                 simbolo == 'd')
+        else if (simbolo == 'a' || simbolo == 'b' ||
+                 simbolo == 'c' || simbolo == 'd')
         {
             if (saida.empty())
-            {
                 iniciouAlfabeto = true;
-            }
-
             if (!invalida)
             {
                 if (simbolo == 'a')
@@ -175,9 +160,7 @@ string reconhecer(const string& entrada)
                     estado = tabela[estado][3];
 
                 if (estado == -1)
-                {
                     invalida = true;
-                }
             }
 
             saida += simbolo;
@@ -186,16 +169,16 @@ string reconhecer(const string& entrada)
         else
         {
             if (saida.empty())
-            {
                 iniciouAlfabeto = false;
-            }
             else
-            {
                 invalida = true;
-            }
-
             saida += simbolo;
         }
+
+        if (posicao < entrada.size())
+            simbolo = entrada[posicao++];
+        else
+            simbolo = '$';
     }
 
     processarSentenca(
