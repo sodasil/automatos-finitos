@@ -8,9 +8,6 @@ on:
 
 jobs:
 
-  # ============================================================
-  # WINDOWS
-  # ============================================================
   windows:
     name: Windows
     runs-on: windows-latest
@@ -31,6 +28,11 @@ jobs:
             mingw-w64-ucrt-x86_64-make
             mingw-w64-ucrt-x86_64-fltk
 
+      - name: Limpar build anterior
+        shell: msys2 {0}
+        run: |
+          rm -rf build
+
       - name: Compilar Windows
         shell: msys2 {0}
         run: |
@@ -46,7 +48,7 @@ jobs:
         run: |
           strip build/Reconhecedor.exe
 
-      - name: Mostrar tamanho
+      - name: Mostrar tamanho Windows
         shell: msys2 {0}
         run: |
           ls -lh build/Reconhecedor.exe
@@ -58,9 +60,6 @@ jobs:
           path: build/Reconhecedor.exe
 
 
-  # ============================================================
-  # LINUX
-  # ============================================================
   linux:
     name: Linux
     runs-on: ubuntu-latest
@@ -79,6 +78,10 @@ jobs:
             git \
             libfltk1.3-dev
 
+      - name: Limpar build anterior
+        run: |
+          rm -rf build
+
       - name: Compilar Linux
         run: |
           cmake -S . -B build \
@@ -94,7 +97,7 @@ jobs:
         run: |
           chmod +x build/Reconhecedor
 
-      - name: Mostrar tamanho
+      - name: Mostrar tamanho Linux
         run: |
           ls -lh build/Reconhecedor
 
@@ -105,9 +108,6 @@ jobs:
           path: build/Reconhecedor
 
 
-  # ============================================================
-  # VERIFICAR LIMITE DE 10 MB
-  # ============================================================
   verificar-tamanho:
     name: Verificar limite de 10 MB
     runs-on: ubuntu-latest
