@@ -8,7 +8,7 @@ set(CMAKE_BUILD_TYPE Release)
 
 find_package(FLTK REQUIRED)
 
-add_executable(Reconhecedor
+add_executable(Reconhecedor WIN32
     main.cpp
 )
 

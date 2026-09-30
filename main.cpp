@@ -3,15 +3,12 @@
 #include <FL/Fl_Box.H>
 #include <FL/Fl_Button.H>
 #include <FL/Fl_Multiline_Input.H>
-#include <FL/Fl_Multiline_Output.H>
+#include <FL/Fl_Text_Display.H>
+#include <FL/Fl_Text_Buffer.H>
 
 #include <string>
 
 using namespace std;
-
-// ============================================================
-// TABELA DO AFDM
-// ============================================================
 
 int tabela[12][4] =
 {
@@ -30,10 +27,6 @@ int tabela[12][4] =
     /*q11*/ { -1,  4, -1, -1 }
 };
 
-// ============================================================
-// ESTADOS FINAIS
-// ============================================================
-
 int EF[12] =
 {
     0,  // q0
@@ -50,17 +43,9 @@ int EF[12] =
     0   // q11
 };
 
-// ============================================================
-// CAMPOS DA INTERFACE
-// ============================================================
-
 Fl_Multiline_Input* campoA;
-Fl_Multiline_Output* campoB;
-
-
-// ============================================================
-// PROCESSAMENTO DE UMA SENTENÇA
-// ============================================================
+Fl_Text_Display* campoB;
+Fl_Text_Buffer* bufferB;
 
 void processarSentenca(
     const string& saida,
@@ -102,11 +87,6 @@ void processarSentenca(
     }
 }
 
-
-// ============================================================
-// RECONHECEDOR
-// ============================================================
-
 string reconhecer(const string& entrada)
 {
     int estado = 0;
@@ -121,13 +101,8 @@ string reconhecer(const string& entrada)
     {
         char simbolo = entrada[i];
 
-        // O $ encerra a entrada, como no programa original
         if (simbolo == '$')
             break;
-
-        // ----------------------------------------------------
-        // ESPAÇOS
-        // ----------------------------------------------------
 
         if (simbolo == ' '  ||
             simbolo == '\n' ||
@@ -150,10 +125,6 @@ string reconhecer(const string& entrada)
             iniciouAlfabeto = false;
             invalida = false;
         }
-
-        // ----------------------------------------------------
-        // OPERADORES ARITMÉTICOS
-        // ----------------------------------------------------
 
         else if (simbolo == '+' ||
                  simbolo == '-' ||
@@ -178,10 +149,6 @@ string reconhecer(const string& entrada)
             resultado += simbolo;
             resultado += "\n";
         }
-
-        // ----------------------------------------------------
-        // ALFABETO: a, b, c, d
-        // ----------------------------------------------------
 
         else if (simbolo == 'a' ||
                  simbolo == 'b' ||
@@ -216,10 +183,6 @@ string reconhecer(const string& entrada)
             saida += simbolo;
         }
 
-        // ----------------------------------------------------
-        // OUTROS SÍMBOLOS
-        // ----------------------------------------------------
-
         else
         {
             if (saida.empty())
@@ -235,7 +198,6 @@ string reconhecer(const string& entrada)
         }
     }
 
-    // Processa a última sentença
     processarSentenca(
         saida,
         estado,
@@ -247,35 +209,21 @@ string reconhecer(const string& entrada)
     return resultado;
 }
 
-
-// ============================================================
-// BOTÃO ANALISAR
-// ============================================================
-
 void analisarCallback(Fl_Widget*, void*)
 {
     string entrada = campoA->value();
 
     string resultado = reconhecer(entrada);
 
-    campoB->value(resultado.c_str());
+    bufferB->text(resultado.c_str());
 }
-
-
-// ============================================================
-// BOTÃO LIMPAR
-// ============================================================
 
 void limparCallback(Fl_Widget*, void*)
 {
     campoA->value("");
-    campoB->value("");
+    bufferB->text("");
 }
 
-
-// ============================================================
-// MAIN
-// ============================================================
 
 int main()
 {
@@ -285,15 +233,7 @@ int main()
         "Reconhecedor de Linguagem Regular"
     );
 
-    // --------------------------------------------------------
-    // FUNDO
-    // --------------------------------------------------------
-
     janela.color(fl_rgb_color(214, 214, 214));
-
-    // --------------------------------------------------------
-    // BARRA DE TÍTULO
-    // --------------------------------------------------------
 
     Fl_Box titulo(
         0,
@@ -310,10 +250,6 @@ int main()
     titulo.labelsize(12);
     titulo.align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
 
-    // --------------------------------------------------------
-    // CAMPO DE ENTRADA
-    // --------------------------------------------------------
-
     campoA = new Fl_Multiline_Input(
         10,
         40,
@@ -326,10 +262,6 @@ int main()
     campoA->textsize(14);
     campoA->color(FL_WHITE);
 
-    // --------------------------------------------------------
-    // BOTÃO ANALISAR
-    // --------------------------------------------------------
-
     Fl_Button analisarBotao(
         355,
         195,
@@ -340,10 +272,6 @@ int main()
 
     analisarBotao.callback(analisarCallback);
 
-    // --------------------------------------------------------
-    // BOTÃO LIMPAR
-    // --------------------------------------------------------
-
     Fl_Button limparBotao(
         450,
         195,
@@ -353,10 +281,6 @@ int main()
     );
 
     limparBotao.callback(limparCallback);
-
-    // --------------------------------------------------------
-    // TÍTULO "TOKENS"
-    // --------------------------------------------------------
 
     Fl_Box tokensTitulo(
         10,
@@ -374,11 +298,7 @@ int main()
     tokensTitulo.labelfont(FL_BOLD);
     tokensTitulo.labelsize(12);
 
-    // --------------------------------------------------------
-    // SAÍDA
-    // --------------------------------------------------------
-
-    campoB = new Fl_Multiline_Output(
+    campoB = new Fl_Text_Display(
         10,
         260,
         535,
@@ -390,10 +310,8 @@ int main()
     campoB->textsize(13);
     campoB->color(FL_WHITE);
 
-    // --------------------------------------------------------
-    // FINALIZA
-    // --------------------------------------------------------
-
+    bufferB = new Fl_Text_Buffer();
+    campoB->buffer(bufferB);
     janela.end();
     janela.show();
 
