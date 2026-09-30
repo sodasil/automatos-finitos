@@ -1,0 +1,8 @@
+/build/
+/venv/
+/main
+/reconhecedor.spec
+/dist/*
+!/dist/reconhecedor
+__pycache__/
+*.py[cod]
