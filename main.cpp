@@ -1,54 +1,134 @@
-#include <iostream>
+#include <FL/Fl.H>
+#include <FL/Fl_Window.H>
+#include <FL/Fl_Box.H>
+#include <FL/Fl_Button.H>
+#include <FL/Fl_Multiline_Input.H>
+#include <FL/Fl_Multiline_Output.H>
+
 #include <string>
 
 using namespace std;
 
-int main()
-{
-    char simbolo;
-    int estado;
-    int tabela[12][4] =
-    {
-        //         a   b   c   d
-        /*q0*/  {  1,  2, -1,  3 },
-        /*q1*/  {  0,  4, -1, -1 },
-        /*q2*/  { -1, -1,  5, -1 },
-        /*q3*/  { -1, -1, -1,  6 },
-        /*q4*/  { -1, -1,  7, -1 },
-        /*q5*/  { -1,  8, -1, -1 },
-        /*q6*/  { -1, -1, -1,  3 },
-        /*q7*/  { -1,  9, -1,  6 },
-        /*q8*/  { -1, -1, 10, -1 },
-        /*q9*/  { -1, -1, 11, -1 },
-        /*q10*/ { -1,  2, -1,  3 },
-        /*q11*/ { -1,  4, -1, -1 }
-    };
+// ============================================================
+// TABELA DO AFDM
+// ============================================================
 
-    int EF[12] =
+int tabela[12][4] =
+{
+    //         a   b   c   d
+    /*q0*/  {  1,  2, -1,  3 },
+    /*q1*/  {  0,  4, -1, -1 },
+    /*q2*/  { -1, -1,  5, -1 },
+    /*q3*/  { -1, -1, -1,  6 },
+    /*q4*/  { -1, -1,  7, -1 },
+    /*q5*/  { -1,  8, -1, -1 },
+    /*q6*/  { -1, -1, -1,  3 },
+    /*q7*/  { -1,  9, -1,  6 },
+    /*q8*/  { -1, -1, 10, -1 },
+    /*q9*/  { -1, -1, 11, -1 },
+    /*q10*/ { -1,  2, -1,  3 },
+    /*q11*/ { -1,  4, -1, -1 }
+};
+
+// ============================================================
+// ESTADOS FINAIS
+// ============================================================
+
+int EF[12] =
+{
+    0,  // q0
+    0,  // q1
+    0,  // q2
+    1,  // q3
+    0,  // q4
+    0,  // q5
+    0,  // q6
+    1,  // q7
+    0,  // q8
+    0,  // q9
+    0,  // q10
+    0   // q11
+};
+
+// ============================================================
+// CAMPOS DA INTERFACE
+// ============================================================
+
+Fl_Multiline_Input* campoA;
+Fl_Multiline_Output* campoB;
+
+
+// ============================================================
+// PROCESSAMENTO DE UMA SENTENÇA
+// ============================================================
+
+void processarSentenca(
+    const string& saida,
+    int estado,
+    bool iniciouAlfabeto,
+    bool invalida,
+    string& resultado
+)
+{
+    if (saida.empty())
+        return;
+
+    if (!iniciouAlfabeto)
     {
-        0,  // q0
-        0,  // q1
-        0,  // q2
-        1,  // q3
-        0,  // q4
-        0,  // q5
-        0,  // q6
-        1,  // q7
-        0,  // q8
-        0,  // q9
-        0,  // q10
-        0   // q11
-    };
+        resultado += "ERRO: símbolo(s) inválido(s): ";
+        resultado += saida;
+        resultado += "\n";
+    }
+    else if (invalida)
+    {
+        resultado += "ERRO: sentença inválida: ";
+        resultado += saida;
+        resultado += "\n";
+    }
+    else
+    {
+        if (EF[estado] == 1)
+        {
+            resultado += "sentença válida: ";
+            resultado += saida;
+            resultado += "\n";
+        }
+        else
+        {
+            resultado += "ERRO: sentença inválida: ";
+            resultado += saida;
+            resultado += "\n";
+        }
+    }
+}
+
+
+// ============================================================
+// RECONHECEDOR
+// ============================================================
+
+string reconhecer(const string& entrada)
+{
+    int estado = 0;
 
     string saida;
+    string resultado;
+
     bool iniciouAlfabeto = false;
     bool invalida = false;
 
-    estado = 0;
-    cin.get(simbolo);
-
-    while (simbolo != '$')
+    for (size_t i = 0; i < entrada.size(); i++)
     {
+        char simbolo = entrada[i];
+
+        // O $ encerra a entrada, como no programa original
+        if (simbolo == '$')
+            break;
+
+        // ----------------------------------------------------
+        // ESPAÇOS
+        // ----------------------------------------------------
+
         if (simbolo == ' '  ||
             simbolo == '\n' ||
             simbolo == '\t' ||
@@ -56,88 +136,58 @@ int main()
             simbolo == '\v' ||
             simbolo == '\f')
         {
-            if (!saida.empty())
-            {
-                if (!iniciouAlfabeto)
-                {
-                    cout << "ERRO: símbolo(s) inválido(s): "
-                         << saida << endl;
-                }
-                else if (invalida)
-                {
-                    cout << "ERRO: sentença inválida: "
-                         << saida << endl;
-                }
-                else
-                {
-                    if (EF[estado] == 1)
-                    {
-                        cout << "sentença válida: "
-                             << saida << endl;
-                    }
-                    else
-                    {
-                        cout << "ERRO: sentença inválida: "
-                             << saida << endl;
-                    }
-                }
+            processarSentenca(
+                saida,
+                estado,
+                iniciouAlfabeto,
+                invalida,
+                resultado
+            );
 
-                saida.clear();
-            }
+            saida.clear();
 
             estado = 0;
             iniciouAlfabeto = false;
             invalida = false;
         }
+
+        // ----------------------------------------------------
+        // OPERADORES ARITMÉTICOS
+        // ----------------------------------------------------
 
         else if (simbolo == '+' ||
                  simbolo == '-' ||
                  simbolo == '*' ||
                  simbolo == '/')
         {
-            if (!saida.empty())
-            {
-                if (!iniciouAlfabeto)
-                {
-                    cout << "ERRO: símbolo(s) inválido(s): "
-                         << saida << endl;
-                }
-                else if (invalida)
-                {
-                    cout << "ERRO: sentença inválida: "
-                         << saida << endl;
-                }
-                else
-                {
-                    if (EF[estado] == 1)
-                    {
-                        cout << "sentença válida: "
-                             << saida << endl;
-                    }
-                    else
-                    {
-                        cout << "ERRO: sentença inválida: "
-                             << saida << endl;
-                    }
-                }
+            processarSentenca(
+                saida,
+                estado,
+                iniciouAlfabeto,
+                invalida,
+                resultado
+            );
 
-                saida.clear();
-            }
+            saida.clear();
 
             estado = 0;
             iniciouAlfabeto = false;
             invalida = false;
 
-            cout << "operador aritmético: "
-                 << simbolo << endl;
+            resultado += "operador aritmético: ";
+            resultado += simbolo;
+            resultado += "\n";
         }
+
+        // ----------------------------------------------------
+        // ALFABETO: a, b, c, d
+        // ----------------------------------------------------
 
         else if (simbolo == 'a' ||
                  simbolo == 'b' ||
                  simbolo == 'c' ||
                  simbolo == 'd')
         {
-
             if (saida.empty())
             {
                 iniciouAlfabeto = true;
@@ -166,13 +216,16 @@ int main()
             saida += simbolo;
         }
 
+        // ----------------------------------------------------
+        // OUTROS SÍMBOLOS
+        // ----------------------------------------------------
+
         else
         {
             if (saida.empty())
             {
                 iniciouAlfabeto = false;
             }
-
             else
             {
                 invalida = true;
@@ -180,37 +233,169 @@ int main()
 
             saida += simbolo;
         }
-
-        cin.get(simbolo);
     }
 
-    if (!saida.empty())
-    {
-        if (!iniciouAlfabeto)
-        {
-            cout << "ERRO: símbolo(s) inválido(s): "
-                 << saida << endl;
-        }
-        else if (invalida)
-        {
-            cout << "ERRO: sentença inválida: "
-                 << saida << endl;
-        }
-        else
-        {
+    // Processa a última sentença
+    processarSentenca(
+        saida,
+        estado,
+        iniciouAlfabeto,
+        invalida,
+        resultado
+    );
 
-            if (EF[estado] == 1)
-            {
-                cout << "sentença válida: "
-                     << saida << endl;
-            }
-            else
-            {
-                cout << "ERRO: sentença inválida: "
-                     << saida << endl;
-            }
-        }
-    }
+    return resultado;
+}
 
-    return 0;
+
+// ============================================================
+// BOTÃO ANALISAR
+// ============================================================
+
+void analisarCallback(Fl_Widget*, void*)
+{
+    string entrada = campoA->value();
+
+    string resultado = reconhecer(entrada);
+
+    campoB->value(resultado.c_str());
+}
+
+
+// ============================================================
+// BOTÃO LIMPAR
+// ============================================================
+
+void limparCallback(Fl_Widget*, void*)
+{
+    campoA->value("");
+    campoB->value("");
+}
+
+
+// ============================================================
+// MAIN
+// ============================================================
+
+int main()
+{
+    Fl_Window janela(
+        555,
+        390,
+        "Reconhecedor de Linguagem Regular"
+    );
+
+    // --------------------------------------------------------
+    // FUNDO
+    // --------------------------------------------------------
+
+    janela.color(fl_rgb_color(214, 214, 214));
+
+    // --------------------------------------------------------
+    // BARRA DE TÍTULO
+    // --------------------------------------------------------
+
+    Fl_Box titulo(
+        0,
+        0,
+        555,
+        25,
+        "✓  Reconhecedor de Linguagem Regular"
+    );
+
+    titulo.box(FL_FLAT_BOX);
+    titulo.color(fl_rgb_color(0, 0, 128));
+    titulo.labelcolor(FL_WHITE);
+    titulo.labelfont(FL_BOLD);
+    titulo.labelsize(12);
+    titulo.align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE);
+
+    // --------------------------------------------------------
+    // CAMPO DE ENTRADA
+    // --------------------------------------------------------
+
+    campoA = new Fl_Multiline_Input(
+        10,
+        40,
+        535,
+        145
+    );
+
+    campoA->box(FL_DOWN_BOX);
+    campoA->textfont(FL_COURIER);
+    campoA->textsize(14);
+    campoA->color(FL_WHITE);
+
+    // --------------------------------------------------------
+    // BOTÃO ANALISAR
+    // --------------------------------------------------------
+
+    Fl_Button analisarBotao(
+        355,
+        195,
+        90,
+        28,
+        "✓ Analisar"
+    );
+
+    analisarBotao.callback(analisarCallback);
+
+    // --------------------------------------------------------
+    // BOTÃO LIMPAR
+    // --------------------------------------------------------
+
+    Fl_Button limparBotao(
+        450,
+        195,
+        95,
+        28,
+        "Limpar"
+    );
+
+    limparBotao.callback(limparCallback);
+
+    // --------------------------------------------------------
+    // TÍTULO "TOKENS"
+    // --------------------------------------------------------
+
+    Fl_Box tokensTitulo(
+        10,
+        235,
+        535,
+        25,
+        "Tokens"
+    );
+
+    tokensTitulo.box(FL_ENGRAVED_BOX);
+    tokensTitulo.align(
+        FL_ALIGN_LEFT |
+        FL_ALIGN_INSIDE
+    );
+    tokensTitulo.labelfont(FL_BOLD);
+    tokensTitulo.labelsize(12);
+
+    // --------------------------------------------------------
+    // SAÍDA
+    // --------------------------------------------------------
+
+    campoB = new Fl_Multiline_Output(
+        10,
+        260,
+        535,
+        110
+    );
+
+    campoB->box(FL_DOWN_BOX);
+    campoB->textfont(FL_COURIER);
+    campoB->textsize(13);
+    campoB->color(FL_WHITE);
+
+    // --------------------------------------------------------
+    // FINALIZA
+    // --------------------------------------------------------
+
+    janela.end();
+    janela.show();
+
+    return Fl::run();
 }
